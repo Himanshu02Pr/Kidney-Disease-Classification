@@ -1,26 +1,28 @@
 from Classifier.config.configuration import ConfigurationManager
-from Classifier.components.kaggle_data_ingestion import DataIngestion
+from Classifier.components.base_model import PrepareBaseModel
 from Classifier import logger
 
-STAGE_NAME = "Data Ingestion Stage"
+
+STAGE_NAME = "Prepare base model"
 
 
-class DataIngestionPipeline:
+class BaseModelPipeline:
     def __init__(self):
         pass
 
     def main(self):
         config = ConfigurationManager()
-        data_ingestion_config = config.get_data_ingestion_config()
-        data_ingestion = DataIngestion(config=data_ingestion_config)
-        data_ingestion.download_file()
+        base_model_config = config.get_base_model_config()
+        base_model = PrepareBaseModel(config=base_model_config)
+        base_model.get_base_model()
+        base_model.update_base_model()
 
 
-
+    
 if __name__ == '__main__':
     try:
         logger.info(f"<-------- {STAGE_NAME} started -------->")
-        obj = DataIngestionPipeline()
+        obj = BaseModelPipeline()
         obj.main()
         logger.info(f"<-------- {STAGE_NAME} completed -------->")
     except Exception as e:
