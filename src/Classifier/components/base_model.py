@@ -1,4 +1,7 @@
 import tensorflow as tf
+from tensorflow.keras.applications import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+from tensorflow.keras import layers, models, optimizers, losses
 from pathlib import Path
 from Classifier.entity.config_entity import BaseModelConfig
 
@@ -9,7 +12,7 @@ class PrepareBaseModel:
 
     
     def get_base_model(self):
-        self.model = tf.keras.applications.vgg16.VGG16(
+        self.model = VGG16(
             input_shape=self.config.params_image_size,
             weights=self.config.params_weights,
             include_top=self.config.params_include_top
@@ -20,28 +23,30 @@ class PrepareBaseModel:
     
 
     @staticmethod
-    def prepare_full_model(model, classes, freeze_all, freeze_till, learning_rate):
+    def prepare_full_model(image_size, base_model, dropout_rate, classes, freeze_all, freeze_till, learning_rate):
         if freeze_all:
-            for layer in model.layers:
-                model.trainable = False
+            for layer in base_model.layers:
+                base_model.trainable = False
         elif (freeze_till is not None) and (freeze_till > 0):
-            for layer in model.layers[:-freeze_till]:
-                model.trainable = False
+            for layer in base_model.layers[:-freeze_till]:
+                base_model.trainable = False
 
-        flatten_in = tf.keras.layers.Flatten()(model.output)
-        prediction = tf.keras.layers.Dense(
-            units=classes,
-            activation="softmax"
-        )(flatten_in)
-
-        full_model = tf.keras.models.Model(
-            inputs=model.input,
-            outputs=prediction
-        )
+        full_model = models.Sequential([
+            layers.Lambda(
+                lambda x: preprocess_input(x), 
+                name='vgg16_preprocessing_layer',
+                input_shape=image_size
+            ),
+            base_model,
+            layers.Flatten(),
+            layers.Dense(512, activation='relu'),
+            layers.Dropout(dropout_rate),
+            layers.Dense(classes, activation='softmax')
+        ])
 
         full_model.compile(
-            optimizer=tf.keras.optimizers.SGD(learning_rate=learning_rate),
-            loss=tf.keras.losses.CategoricalCrossentropy(),
+            optimizer=optimizers.SGD(learning_rate=learning_rate),
+            loss=losses.CategoricalCrossentropy(),
             metrics=["accuracy"]
         )
 
@@ -51,7 +56,9 @@ class PrepareBaseModel:
     
     def update_base_model(self):
         self.full_model = self.prepare_full_model(
-            model=self.model,
+            image_size=self.config.params_image_size,
+            base_model=self.model,
+            dropout_rate=self.config.params_dropout_rate,
             classes=self.config.params_classes,
             freeze_all=True,
             freeze_till=None,
