@@ -42,8 +42,9 @@ class ConfigurationManager:
             params_learning_rate=self.params.LEARNING_RATE,
             params_include_top=self.params.INCLUDE_TOP,
             params_weights=self.params.WEIGHTS,
-            params_classes=self.params.CLASSES
-        )
+            params_classes=self.params.CLASSES,
+            params_dropout_rate=self.params.DROPOUT_RATE 
+            )
 
         return base_model_config
     

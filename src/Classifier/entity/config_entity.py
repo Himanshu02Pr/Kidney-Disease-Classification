@@ -17,6 +17,7 @@ class BaseModelConfig:
     params_include_top: bool
     params_weights: str
     params_classes: int
+    params_dropout_rate: float
 
 @dataclass(frozen=True)
 class TrainingConfig:
