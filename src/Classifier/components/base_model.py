@@ -45,8 +45,8 @@ class PrepareBaseModel:
         ])
 
         full_model.compile(
-            optimizer=optimizers.SGD(learning_rate=learning_rate),
-            loss=losses.CategoricalCrossentropy(),
+            optimizer=optimizers.Adam(learning_rate=learning_rate),
+            loss=losses.categorical_crossentropy,
             metrics=["accuracy"]
         )
 

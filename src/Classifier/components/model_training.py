@@ -2,6 +2,7 @@ from glob import glob
 import math
 import os
 import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from pathlib import Path
 from Classifier.entity.config_entity import TrainingConfig
 
@@ -22,7 +23,7 @@ class Training:
         train_ds = tf.keras.utils.image_dataset_from_directory(
             self.config.training_data,
             labels='inferred',
-            label_mode='categorical',
+            label_mode= 'categorical',
             validation_split=0.2,
             subset='training',
             image_size=self.config.params_image_size[:-1],
@@ -79,8 +80,11 @@ class Training:
         else:
             train_ds
 
-        train_data = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+        train_data = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE).repeat()
         val_data = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
+
+        early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+        model_checkpoint = ModelCheckpoint(self.config.updated_base_model_path, save_best_only=True)
 
 
         self.model.fit(
@@ -88,7 +92,8 @@ class Training:
             epochs=self.config.params_epochs,
             steps_per_epoch=self.steps_per_epoch,
             validation_steps=self.validation_steps,
-            validation_data=val_data
+            validation_data=val_data,
+            callbacks = [early_stop, model_checkpoint]
         )
 
         self.save_model(
