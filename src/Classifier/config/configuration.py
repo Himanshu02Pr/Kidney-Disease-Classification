@@ -52,7 +52,6 @@ class ConfigurationManager:
     def get_training_config(self) -> TrainingConfig:
         training = self.config.training
         prepare_base_model = self.config.base_model
-        #training_data = os.path.join(self.config.data_ingestion.download_path, "datasets\\nazmul0087\ct-kidney-dataset-normal-cyst-tumor-and-stone\\versions\\1\CT-KIDNEY-DATASET-Normal-Cyst-Tumor-Stone\CT-KIDNEY-DATASET-Normal-Cyst-Tumor-Stone")
         create_directories([Path(training.root_dir)])
 
         training_config = TrainingConfig(
@@ -73,7 +72,7 @@ class ConfigurationManager:
         eval_config = EvaluationConfig(
             path_of_model="artifacts/training/model.keras",
             data_path = Path(self.config.training.training_data),
-            mlflow_uri="https://dagshub.com/Himanshu02Pr/Kidney-Disease-Classification.mlflow",
+            mlflow_uri="",
             all_params=self.params,
             params_image_size=self.params.IMAGE_SIZE,
             params_batch_size=self.params.BATCH_SIZE
