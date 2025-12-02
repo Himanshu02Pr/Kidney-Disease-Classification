@@ -1,6 +1,7 @@
 # Kidney-Disease-Classification-VGG16
 
 Deep-learning project for classifying kidney disease (e.g., cysts, stones, tumors, normal) using a VGG16 transfer-learning model. The project includes data preprocessing, model preparation, model training, and evaluation scripts.
+
 ---
 
 ## Overview
